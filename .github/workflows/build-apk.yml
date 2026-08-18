@@ -58,8 +58,14 @@ jobs:
       # in an aapt2-backed task, so those defaults are too small for a parallel
       # release build. Appended rather than committed because prebuild rewrites
       # this file every run; later keys win when Java loads a .properties file.
+      #
+      # NOTE: the generated file does NOT end in a newline (its last line is
+      # expo.inlineModules.watchedDirectories=[]), so a plain `echo >>` glues the
+      # new key onto that line, corrupting it and silently dropping this setting.
+      # printf with a leading \n keeps both keys intact; a blank line is ignored
+      # by the .properties format, so this is safe whether or not one is needed.
       - name: Raise Gradle memory limits
-        run: echo "org.gradle.jvmargs=-Xmx5g -XX:MaxMetaspaceSize=1g" >> android/gradle.properties
+        run: printf '\n%s\n' "org.gradle.jvmargs=-Xmx5g -XX:MaxMetaspaceSize=1g" >> android/gradle.properties
 
       # `expo prebuild` regenerates android/gradle.properties on every run, which
       # defaults to building all four ABIs (armeabi-v7a, arm64-v8a, x86, x86_64).
