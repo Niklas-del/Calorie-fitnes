@@ -23,6 +23,12 @@ export interface PhotoEstimate {
 }
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
+
+// Swap this for a different capability/cost tradeoff. Roughly what one meal
+// photo costs (~1.7k input tokens for the image and prompt, ~200 output):
+//   claude-opus-5    $5 / $25 per 1M tokens  -> ~1.4c per photo (most capable)
+//   claude-sonnet-5  $3 / $15 per 1M         -> ~0.8c per photo
+//   claude-haiku-4-5 $1 / $5  per 1M         -> ~0.3c per photo (cheapest)
 const ESTIMATE_MODEL = 'claude-sonnet-5';
 
 const SYSTEM_PROMPT = `You are a nutrition estimation assistant embedded in a fitness app.
@@ -71,8 +77,26 @@ export async function estimateCaloriesFromPhoto(
   }
 
   const data = await res.json();
-  const text: string | undefined = data?.content?.[0]?.text;
-  if (!text) throw new Error('Vision API returned no content.');
+
+  // Never index content[0] blindly. Current models run adaptive thinking when
+  // the `thinking` parameter is omitted, so the first block is usually a
+  // `thinking` block whose text is empty by default — reading [0].text would
+  // make every estimate fail with "returned no content". Take the text blocks.
+  const blocks: { type?: string; text?: string }[] = Array.isArray(data?.content) ? data.content : [];
+  const text = blocks
+    .filter((b) => b?.type === 'text' && typeof b.text === 'string')
+    .map((b) => b.text)
+    .join('')
+    .trim();
+
+  if (!text) {
+    // A safety refusal comes back as HTTP 200 with stop_reason "refusal", so it
+    // has to be distinguished from an genuinely empty response.
+    if (data?.stop_reason === 'refusal') {
+      throw new Error('The model declined to analyse this photo. Try a different image.');
+    }
+    throw new Error('Vision API returned no content.');
+  }
 
   const jsonMatch = text.match(/\{[\s\S]*\}/);
   if (!jsonMatch) throw new Error('Could not parse estimate from model response.');
