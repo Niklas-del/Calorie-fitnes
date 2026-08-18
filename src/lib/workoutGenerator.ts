@@ -1,5 +1,5 @@
 import { EXERCISES } from '../data/exercises';
-import { Exercise, FocusArea, WorkoutDay, WorkoutPlan, WorkoutQuizAnswers } from './types';
+import { DayTitleKey, Exercise, FocusArea, WorkoutDay, WorkoutPlan, WorkoutQuizAnswers } from './types';
 
 function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));
@@ -14,19 +14,43 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-function dayTitleFor(index: number, totalDays: number, focus: FocusArea): string {
-  if (totalDays <= 3) return `Full Body ${index + 1}`;
-  if (totalDays === 4) return index % 2 === 0 ? 'Upper Body' : 'Lower Body';
+const DAY_TITLE_LABELS: Record<DayTitleKey, string> = {
+  fullBody: 'Full Body',
+  upperBody: 'Upper Body',
+  lowerBody: 'Lower Body',
+  core: 'Core & Conditioning',
+  cardio: 'Cardio',
+};
+
+const FOCUS_TO_TITLE_KEY: Record<FocusArea, DayTitleKey> = {
+  full_body: 'fullBody',
+  upper_body: 'upperBody',
+  lower_body: 'lowerBody',
+  core: 'core',
+  cardio: 'cardio',
+};
+
+// Returns a translation key plus an optional index, so the UI can render the
+// title in the user's language. `title` is still filled in with English for
+// plans that were saved before translations existed.
+function dayTitleFor(
+  index: number,
+  totalDays: number
+): { titleKey: DayTitleKey; titleIndex?: number; title: string } {
+  if (totalDays <= 3) {
+    return {
+      titleKey: 'fullBody',
+      titleIndex: index + 1,
+      title: `${DAY_TITLE_LABELS.fullBody} ${index + 1}`,
+    };
+  }
+  if (totalDays === 4) {
+    const key: DayTitleKey = index % 2 === 0 ? 'upperBody' : 'lowerBody';
+    return { titleKey: key, title: DAY_TITLE_LABELS[key] };
+  }
   const rotation: FocusArea[] = ['upper_body', 'lower_body', 'full_body', 'core', 'cardio'];
-  const f = rotation[index % rotation.length];
-  const labels: Record<FocusArea, string> = {
-    upper_body: 'Upper Body',
-    lower_body: 'Lower Body',
-    full_body: 'Full Body',
-    core: 'Core & Conditioning',
-    cardio: 'Cardio',
-  };
-  return labels[f];
+  const key = FOCUS_TO_TITLE_KEY[rotation[index % rotation.length]];
+  return { titleKey: key, title: DAY_TITLE_LABELS[key] };
 }
 
 function dayFocusFor(index: number, totalDays: number, primaryFocus: FocusArea): FocusArea[] {
@@ -82,7 +106,7 @@ export function generateWorkoutPlan(answers: WorkoutQuizAnswers): WorkoutPlan {
 
     days.push({
       day: i + 1,
-      title: dayTitleFor(i, answers.daysPerWeek, answers.focus),
+      ...dayTitleFor(i, answers.daysPerWeek),
       exercises: selected,
     });
   }

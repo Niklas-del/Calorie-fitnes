@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { useT } from '../i18n/useT';
 import { FoodItem, MealType } from '../lib/types';
 import { colors, radius, spacing, typography } from '../theme/theme';
 import { Button } from './Button';
 import { Card } from './Card';
 
-const MEALS: { key: MealType; label: string }[] = [
-  { key: 'breakfast', label: 'Breakfast' },
-  { key: 'lunch', label: 'Lunch' },
-  { key: 'dinner', label: 'Dinner' },
-  { key: 'snack', label: 'Snack' },
+const MEAL_KEYS: { key: MealType; label: 'breakfast' | 'lunch' | 'dinner' | 'snack' }[] = [
+  { key: 'breakfast', label: 'breakfast' },
+  { key: 'lunch', label: 'lunch' },
+  { key: 'dinner', label: 'dinner' },
+  { key: 'snack', label: 'snack' },
 ];
 
 interface FoodConfirmProps {
@@ -19,6 +20,7 @@ interface FoodConfirmProps {
 }
 
 export function FoodConfirm({ food, onSave, saving }: FoodConfirmProps) {
+  const t = useT();
   const [grams, setGrams] = useState(String(food.servingSizeG ?? 100));
   const [meal, setMeal] = useState<MealType>('snack');
 
@@ -30,7 +32,7 @@ export function FoodConfirm({ food, onSave, saving }: FoodConfirmProps) {
       <Text style={typography.h2}>{food.name}</Text>
       {food.brand ? <Text style={typography.muted}>{food.brand}</Text> : null}
 
-      <Text style={[typography.label, { marginTop: spacing(4) }]}>AMOUNT (GRAMS)</Text>
+      <Text style={[typography.label, { marginTop: spacing(4) }]}>{t.common.amountGrams}</Text>
       <TextInput
         value={grams}
         onChangeText={setGrams}
@@ -38,27 +40,27 @@ export function FoodConfirm({ food, onSave, saving }: FoodConfirmProps) {
         style={styles.input}
       />
 
-      <Text style={[typography.label, { marginTop: spacing(4) }]}>MEAL</Text>
+      <Text style={[typography.label, { marginTop: spacing(4) }]}>{t.common.meal}</Text>
       <View style={styles.segmentWrap}>
-        {MEALS.map((m) => (
+        {MEAL_KEYS.map((m) => (
           <Text
             key={m.key}
             onPress={() => setMeal(m.key)}
             style={[styles.segment, meal === m.key && styles.segmentActive]}
           >
-            {m.label}
+            {t.meals[m.label]}
           </Text>
         ))}
       </View>
 
       <View style={styles.calRow}>
-        <Text style={typography.muted}>Estimated calories</Text>
-        <Text style={styles.calValue}>{calories} kcal</Text>
+        <Text style={typography.muted}>{t.common.estimatedCalories}</Text>
+        <Text style={styles.calValue}>{calories} {t.common.kcal}</Text>
       </View>
 
       <View style={{ marginTop: spacing(4) }}>
         <Button
-          title="Add to diary"
+          title={t.common.addToDiary}
           onPress={() => onSave(gramsNum, meal)}
           disabled={gramsNum <= 0}
           loading={saving}

@@ -12,12 +12,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card } from '../../src/components/Card';
 import { FoodConfirm } from '../../src/components/FoodConfirm';
+import { useT } from '../../src/i18n/useT';
 import { searchFoodByName } from '../../src/services/openFoodFacts';
 import { FoodItem, MealType } from '../../src/lib/types';
 import { useFoodLogStore } from '../../src/store/useFoodLogStore';
 import { colors, radius, spacing, typography } from '../../src/theme/theme';
 
 export default function SearchFood() {
+  const t = useT();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<FoodItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -33,9 +35,9 @@ export default function SearchFood() {
     try {
       const items = await searchFoodByName(query.trim());
       setResults(items);
-      if (items.length === 0) setError('No results found. Try a different search term.');
+      if (items.length === 0) setError(t.food.noResults);
     } catch (e) {
-      setError('Search failed. Check your connection and try again.');
+      setError(t.food.searchFailed);
     } finally {
       setLoading(false);
     }
@@ -51,9 +53,9 @@ export default function SearchFood() {
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.header}>
-        <Text style={typography.h1}>Search food</Text>
+        <Text style={typography.h1}>{t.food.searchTitle}</Text>
         <Pressable onPress={() => router.back()}>
-          <Text style={styles.closeText}>Close</Text>
+          <Text style={styles.closeText}>{t.common.close}</Text>
         </Pressable>
       </View>
 
@@ -61,7 +63,7 @@ export default function SearchFood() {
         <TextInput
           value={query}
           onChangeText={setQuery}
-          placeholder="e.g. chicken breast, oats, banana"
+          placeholder={t.food.searchPlaceholder}
           placeholderTextColor={colors.textMuted}
           style={styles.input}
           onSubmitEditing={runSearch}
@@ -76,7 +78,7 @@ export default function SearchFood() {
       {selected ? (
         <View style={{ marginTop: spacing(4) }}>
           <Pressable onPress={() => setSelected(null)}>
-            <Text style={styles.backLink}>‹ Back to results</Text>
+            <Text style={styles.backLink}>{t.food.backToResults}</Text>
           </Pressable>
           <View style={{ marginTop: spacing(3) }}>
             <FoodConfirm food={selected} onSave={save} />
@@ -93,7 +95,7 @@ export default function SearchFood() {
                 <Text style={styles.resultName}>{item.name}</Text>
                 <Text style={typography.muted}>
                   {item.brand ? `${item.brand} · ` : ''}
-                  {item.caloriesPer100g} kcal / 100g
+                  {t.food.per100g(item.caloriesPer100g)}
                 </Text>
               </Card>
             </Pressable>

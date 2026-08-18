@@ -5,11 +5,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '../../src/components/Button';
 import { Card } from '../../src/components/Card';
 import { ProgressRing } from '../../src/components/ProgressRing';
+import { useT } from '../../src/i18n/useT';
 import { formatShortDay, lastNDateKeys, todayKey } from '../../src/lib/date';
 import { useStepStore } from '../../src/store/useStepStore';
 import { colors, radius, spacing, typography } from '../../src/theme/theme';
 
 export default function Steps() {
+  const t = useT();
   const today = todayKey();
   const stepGoal = useStepStore((s) => s.stepGoal);
   const setStepsForDate = useStepStore((s) => s.setStepsForDate);
@@ -29,13 +31,13 @@ export default function Steps() {
       const isAvailable = await Pedometer.isAvailableAsync().catch(() => false);
       setAvailable(isAvailable);
       if (!isAvailable) {
-        setError('Step counting is not available on this device/simulator.');
+        setError(t.steps.unavailable);
         return;
       }
 
       const perm = await Pedometer.requestPermissionsAsync().catch(() => null);
       if (perm && !perm.granted) {
-        setError('Motion permission denied. Enable it in system settings to track steps.');
+        setError(t.steps.permissionDenied);
         return;
       }
 
@@ -67,7 +69,7 @@ export default function Steps() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scroll}>
-        <Text style={typography.h1}>Steps</Text>
+        <Text style={typography.h1}>{t.steps.title}</Text>
         {error ? <Text style={[typography.muted, { marginTop: spacing(2) }]}>{error}</Text> : null}
 
         <Card style={styles.ringCard}>
@@ -75,12 +77,12 @@ export default function Steps() {
             progress={stepGoal > 0 ? stepsToday / stepGoal : 0}
             color={colors.accent}
             label={stepsToday.toLocaleString()}
-            sublabel="steps today"
+            sublabel={t.steps.stepsToday}
           />
         </Card>
 
         <Card style={{ marginTop: spacing(4) }}>
-          <Text style={[typography.h2, { marginBottom: spacing(3) }]}>Last 7 days</Text>
+          <Text style={[typography.h2, { marginBottom: spacing(3) }]}>{t.steps.last7Days}</Text>
           <View style={styles.chartRow}>
             {last7.map((d) => {
               const value = history[d] ?? 0;
@@ -103,7 +105,7 @@ export default function Steps() {
         </Card>
 
         <Card style={{ marginTop: spacing(4) }}>
-          <Text style={typography.label}>DAILY STEP GOAL</Text>
+          <Text style={typography.label}>{t.steps.dailyGoal}</Text>
           <View style={styles.goalRow}>
             <TextInput
               value={goalInput}
@@ -112,7 +114,7 @@ export default function Steps() {
               style={styles.input}
             />
             <View style={{ width: spacing(3) }} />
-            <Button title="Save" onPress={() => setStepGoal(Number(goalInput) || stepGoal)} variant="secondary" />
+            <Button title={t.common.save} onPress={() => setStepGoal(Number(goalInput) || stepGoal)} variant="secondary" />
           </View>
         </Card>
       </ScrollView>

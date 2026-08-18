@@ -91,9 +91,16 @@ export interface Exercise {
   isCardio?: boolean;
 }
 
+export type DayTitleKey = 'fullBody' | 'upperBody' | 'lowerBody' | 'core' | 'cardio';
+
 export interface WorkoutDay {
   day: number;
+  /** English title, kept so plans saved before translations existed still render. */
   title: string;
+  /** Translation key for the title; preferred over `title` when present. */
+  titleKey?: DayTitleKey;
+  /** Suffix for repeated day types, e.g. "Full Body 2". */
+  titleIndex?: number;
   exercises: Exercise[];
 }
 

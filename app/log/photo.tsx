@@ -14,20 +14,22 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '../../src/components/Button';
 import { Card } from '../../src/components/Card';
+import { useT } from '../../src/i18n/useT';
 import { MealType } from '../../src/lib/types';
 import { EstimatedFoodItem, estimateCaloriesFromPhoto } from '../../src/services/visionCalorie';
 import { useFoodLogStore } from '../../src/store/useFoodLogStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
 import { colors, radius, spacing, typography } from '../../src/theme/theme';
 
-const MEALS: { key: MealType; label: string }[] = [
-  { key: 'breakfast', label: 'Breakfast' },
-  { key: 'lunch', label: 'Lunch' },
-  { key: 'dinner', label: 'Dinner' },
-  { key: 'snack', label: 'Snack' },
+const MEAL_KEYS: { key: MealType; label: 'breakfast' | 'lunch' | 'dinner' | 'snack' }[] = [
+  { key: 'breakfast', label: 'breakfast' },
+  { key: 'lunch', label: 'lunch' },
+  { key: 'dinner', label: 'dinner' },
+  { key: 'snack', label: 'snack' },
 ];
 
 export default function PhotoEstimate() {
+  const t = useT();
   const apiKey = useSettingsStore((s) => s.visionApiKey);
   const addEntry = useFoodLogStore((s) => s.addEntry);
 
@@ -48,7 +50,7 @@ export default function PhotoEstimate() {
         ? await ImagePicker.requestCameraPermissionsAsync()
         : await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
-      setError('Permission denied. Enable camera/photo access in system settings.');
+      setError(t.photo.permissionDenied);
       return;
     }
 
@@ -63,11 +65,11 @@ export default function PhotoEstimate() {
     setItems([]);
 
     if (!apiKey) {
-      setError('No AI vision key configured — add one in Profile > Settings, or enter this meal manually below.');
+      setError(t.photo.noKey);
       return;
     }
     if (!asset.base64) {
-      setError('Could not read image data.');
+      setError(t.photo.readFailed);
       return;
     }
 
@@ -129,9 +131,9 @@ export default function PhotoEstimate() {
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView contentContainerStyle={{ paddingBottom: spacing(10) }}>
         <View style={styles.header}>
-          <Text style={typography.h1}>Photo estimate</Text>
+          <Text style={typography.h1}>{t.photo.title}</Text>
           <Pressable onPress={() => router.back()}>
-            <Text style={styles.closeText}>Close</Text>
+            <Text style={styles.closeText}>{t.common.close}</Text>
           </Pressable>
         </View>
 
@@ -140,10 +142,10 @@ export default function PhotoEstimate() {
         ) : (
           <View style={styles.pickerRow}>
             <View style={styles.pickerItem}>
-              <Button title="📷 Take Photo" onPress={() => pickAndEstimate('camera')} />
+              <Button title={t.photo.takePhoto} onPress={() => pickAndEstimate('camera')} />
             </View>
             <View style={styles.pickerItem}>
-              <Button title="🖼️ From Library" onPress={() => pickAndEstimate('library')} variant="secondary" />
+              <Button title={t.photo.fromLibrary} onPress={() => pickAndEstimate('library')} variant="secondary" />
             </View>
           </View>
         )}
@@ -151,7 +153,7 @@ export default function PhotoEstimate() {
         {loading ? (
           <View style={{ alignItems: 'center', marginTop: spacing(6) }}>
             <ActivityIndicator color={colors.primary} size="large" />
-            <Text style={[typography.muted, { marginTop: spacing(3) }]}>Analyzing photo…</Text>
+            <Text style={[typography.muted, { marginTop: spacing(3) }]}>{t.photo.analyzing}</Text>
           </View>
         ) : null}
 
@@ -159,7 +161,7 @@ export default function PhotoEstimate() {
 
         {items.length > 0 ? (
           <Card style={{ marginTop: spacing(4) }}>
-            <Text style={typography.h2}>Detected items</Text>
+            <Text style={typography.h2}>{t.photo.detected}</Text>
             {notes ? <Text style={[typography.muted, { marginTop: 4 }]}>{notes}</Text> : null}
             {items.map((item, idx) => (
               <View key={idx} style={styles.itemRow}>
@@ -177,44 +179,44 @@ export default function PhotoEstimate() {
               </View>
             ))}
 
-            <Text style={[typography.label, { marginTop: spacing(4) }]}>MEAL</Text>
+            <Text style={[typography.label, { marginTop: spacing(4) }]}>{t.common.meal}</Text>
             <View style={styles.segmentWrap}>
-              {MEALS.map((m) => (
+              {MEAL_KEYS.map((m) => (
                 <Text
                   key={m.key}
                   onPress={() => setMeal(m.key)}
                   style={[styles.segment, meal === m.key && styles.segmentActive]}
                 >
-                  {m.label}
+                  {t.meals[m.label]}
                 </Text>
               ))}
             </View>
 
             <View style={styles.calRow}>
-              <Text style={typography.muted}>Total</Text>
-              <Text style={styles.calValue}>{totalCalories} kcal</Text>
+              <Text style={typography.muted}>{t.common.total}</Text>
+              <Text style={styles.calValue}>{totalCalories} {t.common.kcal}</Text>
             </View>
 
             <View style={{ marginTop: spacing(4) }}>
-              <Button title="Add to diary" onPress={saveEstimated} />
+              <Button title={t.common.addToDiary} onPress={saveEstimated} />
             </View>
           </Card>
         ) : null}
 
         {imageUri && items.length === 0 && !loading ? (
           <Card style={{ marginTop: spacing(4) }}>
-            <Text style={typography.h2}>Enter manually</Text>
-            <Text style={[typography.label, { marginTop: spacing(3) }]}>FOOD NAME</Text>
+            <Text style={typography.h2}>{t.photo.enterManually}</Text>
+            <Text style={[typography.label, { marginTop: spacing(3) }]}>{t.photo.foodName}</Text>
             <TextInput
               value={manualName}
               onChangeText={setManualName}
-              placeholder="e.g. Chicken salad"
+              placeholder={t.photo.foodNamePlaceholder}
               placeholderTextColor={colors.textMuted}
               style={styles.input}
             />
             <View style={styles.row2}>
               <View style={styles.col}>
-                <Text style={typography.label}>GRAMS</Text>
+                <Text style={typography.label}>{t.photo.gramsLabel}</Text>
                 <TextInput
                   value={manualGrams}
                   onChangeText={setManualGrams}
@@ -223,7 +225,7 @@ export default function PhotoEstimate() {
                 />
               </View>
               <View style={styles.col}>
-                <Text style={typography.label}>CALORIES</Text>
+                <Text style={typography.label}>{t.photo.caloriesLabel}</Text>
                 <TextInput
                   value={manualCalories}
                   onChangeText={setManualCalories}
@@ -232,20 +234,20 @@ export default function PhotoEstimate() {
                 />
               </View>
             </View>
-            <Text style={[typography.label, { marginTop: spacing(4) }]}>MEAL</Text>
+            <Text style={[typography.label, { marginTop: spacing(4) }]}>{t.common.meal}</Text>
             <View style={styles.segmentWrap}>
-              {MEALS.map((m) => (
+              {MEAL_KEYS.map((m) => (
                 <Text
                   key={m.key}
                   onPress={() => setMeal(m.key)}
                   style={[styles.segment, meal === m.key && styles.segmentActive]}
                 >
-                  {m.label}
+                  {t.meals[m.label]}
                 </Text>
               ))}
             </View>
             <View style={{ marginTop: spacing(4) }}>
-              <Button title="Add to diary" onPress={saveManual} />
+              <Button title={t.common.addToDiary} onPress={saveManual} />
             </View>
           </Card>
         ) : null}

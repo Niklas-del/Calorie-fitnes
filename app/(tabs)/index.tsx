@@ -6,6 +6,7 @@ import { Button } from '../../src/components/Button';
 import { Card } from '../../src/components/Card';
 import { MacroBar } from '../../src/components/MacroBar';
 import { ProgressRing } from '../../src/components/ProgressRing';
+import { useT } from '../../src/i18n/useT';
 import { todayKey } from '../../src/lib/date';
 import { entriesOnDate, sumTotals } from '../../src/lib/nutrition';
 import { useFoodLogStore } from '../../src/store/useFoodLogStore';
@@ -14,6 +15,7 @@ import { useStepStore } from '../../src/store/useStepStore';
 import { colors, spacing, typography } from '../../src/theme/theme';
 
 export default function Dashboard() {
+  const t = useT();
   const profile = useProfileStore((s) => s.profile);
   const getTargets = useProfileStore((s) => s.getTargets);
   const targets = getTargets();
@@ -32,7 +34,7 @@ export default function Dashboard() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scroll}>
-        <Text style={typography.h1}>Hi {profile?.name ?? 'there'} 👋</Text>
+        <Text style={typography.h1}>{t.dashboard.greeting(profile?.name ?? '')}</Text>
         <Text style={[typography.muted, { marginBottom: spacing(5) }]}>
           {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
         </Text>
@@ -42,46 +44,46 @@ export default function Dashboard() {
             progress={progress}
             color={remaining < 0 ? colors.danger : colors.primary}
             label={`${Math.abs(remaining)}`}
-            sublabel={remaining < 0 ? 'kcal over' : 'kcal left'}
+            sublabel={remaining < 0 ? t.dashboard.kcalOver : t.dashboard.kcalLeft}
           />
           <View style={styles.ringStatsRow}>
-            <Stat label="Target" value={`${target}`} />
-            <Stat label="Eaten" value={`${totals.calories}`} />
-            <Stat label="Steps" value={`${steps}`} />
+            <Stat label={t.dashboard.target} value={`${target}`} />
+            <Stat label={t.dashboard.eaten} value={`${totals.calories}`} />
+            <Stat label={t.dashboard.steps} value={`${steps}`} />
           </View>
         </Card>
 
         {targets ? (
           <Card style={{ marginTop: spacing(4) }}>
-            <Text style={[typography.h2, { marginBottom: spacing(3) }]}>Macros</Text>
-            <MacroBar label="Protein" grams={totals.proteinG} targetGrams={targets.proteinG} color={colors.protein} />
-            <MacroBar label="Carbs" grams={totals.carbsG} targetGrams={targets.carbsG} color={colors.carbs} />
-            <MacroBar label="Fat" grams={totals.fatG} targetGrams={targets.fatG} color={colors.fat} />
+            <Text style={[typography.h2, { marginBottom: spacing(3) }]}>{t.dashboard.macros}</Text>
+            <MacroBar label={t.dashboard.protein} grams={totals.proteinG} targetGrams={targets.proteinG} color={colors.protein} />
+            <MacroBar label={t.dashboard.carbs} grams={totals.carbsG} targetGrams={targets.carbsG} color={colors.carbs} />
+            <MacroBar label={t.dashboard.fat} grams={totals.fatG} targetGrams={targets.fatG} color={colors.fat} />
           </Card>
         ) : null}
 
         <Card style={{ marginTop: spacing(4) }}>
           <View style={styles.stepsRow}>
             <View>
-              <Text style={typography.h2}>{steps.toLocaleString()} steps</Text>
-              <Text style={typography.muted}>Goal: {stepGoal.toLocaleString()}</Text>
+              <Text style={typography.h2}>{steps.toLocaleString()} {t.dashboard.stepsSuffix}</Text>
+              <Text style={typography.muted}>{t.dashboard.stepGoal(stepGoal.toLocaleString())}</Text>
             </View>
             <Text style={styles.stepsEmoji}>👟</Text>
           </View>
         </Card>
 
         <Text style={[typography.h2, { marginTop: spacing(6), marginBottom: spacing(3) }]}>
-          Log food
+          {t.dashboard.logFood}
         </Text>
         <View style={styles.quickAddRow}>
           <View style={styles.quickAddItem}>
-            <Button title="🔍 Search" onPress={() => router.push('/log/search')} variant="secondary" />
+            <Button title={t.dashboard.search} onPress={() => router.push('/log/search')} variant="secondary" />
           </View>
           <View style={styles.quickAddItem}>
-            <Button title="📷 Barcode" onPress={() => router.push('/log/scan')} variant="secondary" />
+            <Button title={t.dashboard.barcode} onPress={() => router.push('/log/scan')} variant="secondary" />
           </View>
           <View style={styles.quickAddItem}>
-            <Button title="🖼️ Photo" onPress={() => router.push('/log/photo')} variant="secondary" />
+            <Button title={t.dashboard.photo} onPress={() => router.push('/log/photo')} variant="secondary" />
           </View>
         </View>
       </ScrollView>

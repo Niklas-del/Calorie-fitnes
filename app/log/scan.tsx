@@ -6,11 +6,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '../../src/components/Button';
 import { FoodConfirm } from '../../src/components/FoodConfirm';
 import { FoodItem, MealType } from '../../src/lib/types';
+import { useT } from '../../src/i18n/useT';
 import { lookupFoodByBarcode } from '../../src/services/openFoodFacts';
 import { useFoodLogStore } from '../../src/store/useFoodLogStore';
 import { colors, spacing, typography } from '../../src/theme/theme';
 
 export default function ScanBarcode() {
+  const t = useT();
   const [permission, requestPermission] = useCameraPermissions();
   const [locked, setLocked] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -26,12 +28,12 @@ export default function ScanBarcode() {
     try {
       const item = await lookupFoodByBarcode(barcode);
       if (!item) {
-        setError(`No product found for barcode ${barcode}.`);
+        setError(t.food.notFound(barcode));
       } else {
         setFound(item);
       }
     } catch {
-      setError('Lookup failed. Check your connection and try again.');
+      setError(t.food.lookupFailed);
     } finally {
       setLoading(false);
     }
@@ -53,9 +55,9 @@ export default function ScanBarcode() {
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.header}>
-        <Text style={typography.h1}>Scan barcode</Text>
+        <Text style={typography.h1}>{t.food.scanTitle}</Text>
         <Pressable onPress={() => router.back()}>
-          <Text style={styles.closeText}>Close</Text>
+          <Text style={styles.closeText}>{t.common.close}</Text>
         </Pressable>
       </View>
 
@@ -64,15 +66,15 @@ export default function ScanBarcode() {
       ) : !permission.granted ? (
         <View style={styles.permissionBox}>
           <Text style={[typography.body, { textAlign: 'center', marginBottom: spacing(4) }]}>
-            Camera access is needed to scan barcodes.
+            {t.food.cameraNeeded}
           </Text>
-          <Button title="Grant camera access" onPress={requestPermission} />
+          <Button title={t.food.grantCamera} onPress={requestPermission} />
         </View>
       ) : found ? (
         <View style={{ marginTop: spacing(4) }}>
           <FoodConfirm food={found} onSave={save} />
           <Pressable onPress={reset} style={{ marginTop: spacing(4) }}>
-            <Text style={styles.rescanText}>Scan another item</Text>
+            <Text style={styles.rescanText}>{t.food.scanAnother}</Text>
           </Pressable>
         </View>
       ) : (
@@ -86,7 +88,7 @@ export default function ScanBarcode() {
           />
           <View style={styles.overlay} pointerEvents="none">
             <View style={styles.frame} />
-            <Text style={styles.hint}>Align the barcode within the frame</Text>
+            <Text style={styles.hint}>{t.food.alignBarcode}</Text>
           </View>
           {loading ? (
             <View style={styles.loadingOverlay}>
@@ -97,7 +99,7 @@ export default function ScanBarcode() {
             <View style={styles.errorBar}>
               <Text style={styles.errorText}>{error}</Text>
               <Pressable onPress={reset}>
-                <Text style={styles.rescanText}>Try again</Text>
+                <Text style={styles.rescanText}>{t.common.tryAgain}</Text>
               </Pressable>
             </View>
           ) : null}
