@@ -10,7 +10,6 @@ interface StepState {
   setStepsForDate: (date: string, steps: number) => void;
   addStepsToday: (delta: number) => void;
   setStepGoal: (goal: number) => void;
-  stepsForDate: (date: string) => number;
 }
 
 export const useStepStore = create<StepState>()(
@@ -26,7 +25,6 @@ export const useStepStore = create<StepState>()(
         set((s) => ({ history: { ...s.history, [date]: current + delta } }));
       },
       setStepGoal: (goal) => set({ stepGoal: goal }),
-      stepsForDate: (date) => get().history[date] ?? 0,
     }),
     {
       name: 'fittrack.steps',

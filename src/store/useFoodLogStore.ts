@@ -14,17 +14,21 @@ function computeNutrition(food: FoodItem, grams: number) {
   };
 }
 
+// Only raw state and actions live here on purpose. Derived values (a filtered
+// list, a totals object) must NOT be exposed as store methods: calling one from
+// inside a selector returns a freshly built array/object every render, and
+// zustand v5's useSyncExternalStore reads that new reference as "state changed",
+// which re-renders forever and hard-crashes the app. Derive with the helpers in
+// src/lib/nutrition.ts wrapped in useMemo instead.
 interface FoodLogState {
   entries: LogEntry[];
   addEntry: (food: FoodItem, grams: number, meal: MealType, date?: string) => void;
   removeEntry: (id: string) => void;
-  entriesForDate: (date: string) => LogEntry[];
-  totalsForDate: (date: string) => { calories: number; proteinG: number; fatG: number; carbsG: number };
 }
 
 export const useFoodLogStore = create<FoodLogState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       entries: [],
       addEntry: (food, grams, meal, date) => {
         const nutrition = computeNutrition(food, grams);
@@ -40,19 +44,6 @@ export const useFoodLogStore = create<FoodLogState>()(
         set((s) => ({ entries: [entry, ...s.entries] }));
       },
       removeEntry: (id) => set((s) => ({ entries: s.entries.filter((e) => e.id !== id) })),
-      entriesForDate: (date) => get().entries.filter((e) => e.date === date),
-      totalsForDate: (date) => {
-        const items = get().entries.filter((e) => e.date === date);
-        return items.reduce(
-          (acc, e) => ({
-            calories: acc.calories + e.calories,
-            proteinG: acc.proteinG + e.proteinG,
-            fatG: acc.fatG + e.fatG,
-            carbsG: acc.carbsG + e.carbsG,
-          }),
-          { calories: 0, proteinG: 0, fatG: 0, carbsG: 0 }
-        );
-      },
     }),
     {
       name: 'fittrack.foodlog',

@@ -1,5 +1,5 @@
 import { router, Stack } from 'expo-router';
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -45,16 +45,28 @@ function Segmented<T extends string>({
 export default function EditProfile() {
   const profile = useProfileStore((s) => s.profile);
   const setProfile = useProfileStore((s) => s.setProfile);
-  if (!profile) return null;
 
-  const [name, setName] = useState(profile.name);
-  const [sex, setSex] = useState<Sex>(profile.sex);
-  const [age, setAge] = useState(String(profile.age));
-  const [heightCm, setHeightCm] = useState(String(profile.heightCm));
-  const [weightKg, setWeightKg] = useState(String(profile.weightKg));
-  const [activityLevel, setActivityLevel] = useState<ActivityLevel>(profile.activityLevel);
-  const [goal, setGoal] = useState<Goal>(profile.goal);
-  const [weeklyRateKg, setWeeklyRateKg] = useState(String(profile.weeklyRateKg || 0.5));
+  // Every hook must run before any early return, otherwise the hook count
+  // changes between renders and React throws "rendered fewer hooks than
+  // expected". The `if (!profile)` guard lives below all of them.
+  const [name, setName] = useState(profile?.name ?? '');
+  const [sex, setSex] = useState<Sex>(profile?.sex ?? 'male');
+  const [age, setAge] = useState(String(profile?.age ?? ''));
+  const [heightCm, setHeightCm] = useState(String(profile?.heightCm ?? ''));
+  const [weightKg, setWeightKg] = useState(String(profile?.weightKg ?? ''));
+  const [activityLevel, setActivityLevel] = useState<ActivityLevel>(
+    profile?.activityLevel ?? 'moderate'
+  );
+  const [goal, setGoal] = useState<Goal>(profile?.goal ?? 'maintain');
+  const [weeklyRateKg, setWeeklyRateKg] = useState(String(profile?.weeklyRateKg || 0.5));
+
+  // Same keyboard problem as onboarding: scroll the bottom field into view.
+  const scrollRef = useRef<ScrollView>(null);
+  const revealFocusedField = useCallback(() => {
+    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 150);
+  }, []);
+
+  if (!profile) return null;
 
   function save() {
     if (!profile) return;
@@ -77,7 +89,11 @@ export default function EditProfile() {
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <Stack.Screen options={{ headerShown: false }} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={styles.scroll}>
+        <ScrollView
+          ref={scrollRef}
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+        >
           <View style={styles.header}>
             <Text style={typography.h1}>Edit profile</Text>
             <Pressable onPress={() => router.back()}>
@@ -147,6 +163,7 @@ export default function EditProfile() {
                 <TextInput
                   value={weeklyRateKg}
                   onChangeText={setWeeklyRateKg}
+                  onFocus={revealFocusedField}
                   keyboardType="decimal-pad"
                   style={styles.input}
                 />
@@ -163,7 +180,7 @@ export default function EditProfile() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
-  scroll: { padding: spacing(5), paddingBottom: spacing(10) },
+  scroll: { padding: spacing(5), paddingBottom: spacing(20) },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   closeText: { color: colors.primary, fontSize: 15, fontWeight: '600' },
   input: {

@@ -1,9 +1,11 @@
 import { router } from 'expo-router';
+import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '../../src/components/Button';
 import { Card } from '../../src/components/Card';
 import { todayKey } from '../../src/lib/date';
+import { entriesOnDate, sumTotals } from '../../src/lib/nutrition';
 import { MealType } from '../../src/lib/types';
 import { useFoodLogStore } from '../../src/store/useFoodLogStore';
 import { colors, radius, spacing, typography } from '../../src/theme/theme';
@@ -17,9 +19,12 @@ const MEALS: { key: MealType; label: string }[] = [
 
 export default function Diary() {
   const today = todayKey();
-  const entries = useFoodLogStore((s) => s.entriesForDate(today));
+  // Select raw state and derive here — a selector that builds a new array/object
+  // each call makes zustand re-render forever (see the note in useFoodLogStore).
+  const allEntries = useFoodLogStore((s) => s.entries);
   const removeEntry = useFoodLogStore((s) => s.removeEntry);
-  const totals = useFoodLogStore((s) => s.totalsForDate(today));
+  const entries = useMemo(() => entriesOnDate(allEntries, today), [allEntries, today]);
+  const totals = useMemo(() => sumTotals(entries), [entries]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>

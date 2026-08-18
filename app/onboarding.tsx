@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -53,6 +53,15 @@ export default function Onboarding() {
   const [goal, setGoal] = useState<Goal>('maintain');
   const [weeklyRateKg, setWeeklyRateKg] = useState('0.5');
 
+  // On Android the keyboard resizes the window rather than scrolling the form,
+  // so a field near the bottom (the target rate) ends up hidden behind it and
+  // you cannot see what you are typing. Scroll it into view once the keyboard
+  // has actually animated in.
+  const scrollRef = useRef<ScrollView>(null);
+  const revealFocusedField = useCallback(() => {
+    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 150);
+  }, []);
+
   const canSubmit =
     age.trim() !== '' && heightCm.trim() !== '' && weightKg.trim() !== '' && !Number.isNaN(Number(age));
 
@@ -76,7 +85,11 @@ export default function Onboarding() {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={styles.scroll}>
+        <ScrollView
+          ref={scrollRef}
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+        >
           <Text style={typography.h1}>Let's set you up</Text>
           <Text style={[typography.muted, { marginBottom: spacing(6) }]}>
             We use this to calculate your daily calorie target.
@@ -167,6 +180,7 @@ export default function Onboarding() {
                 <TextInput
                   value={weeklyRateKg}
                   onChangeText={setWeeklyRateKg}
+                  onFocus={revealFocusedField}
                   keyboardType="decimal-pad"
                   style={styles.input}
                 />
@@ -186,7 +200,8 @@ export default function Onboarding() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
-  scroll: { padding: spacing(5), paddingBottom: spacing(10) },
+  // Extra bottom room so the last field clears the keyboard once scrolled to.
+  scroll: { padding: spacing(5), paddingBottom: spacing(20) },
   input: {
     backgroundColor: colors.cardAlt,
     borderRadius: radius.sm,
