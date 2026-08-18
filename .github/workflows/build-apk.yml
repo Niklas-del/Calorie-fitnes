@@ -21,6 +21,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # The first CI run deadlocked after a Gradle worker died: the failing task
+    # was reported at 16:34:56 and then the build produced no further output at
+    # all, sitting idle until it was cancelled 29 minutes later (the runner then
+    # had to terminate three orphaned java processes). Fail fast instead of
+    # burning a runner when that happens again.
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -45,6 +51,15 @@ jobs:
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
+
+      # The generated gradle.properties sets -Xmx2048m -XX:MaxMetaspaceSize=512m
+      # with org.gradle.parallel=true. The first CI run logged "The Daemon will
+      # expire after the build after running out of JVM Metaspace" and then died
+      # in an aapt2-backed task, so those defaults are too small for a parallel
+      # release build. Appended rather than committed because prebuild rewrites
+      # this file every run; later keys win when Java loads a .properties file.
+      - name: Raise Gradle memory limits
+        run: echo "org.gradle.jvmargs=-Xmx5g -XX:MaxMetaspaceSize=1g" >> android/gradle.properties
 
       # `expo prebuild` regenerates android/gradle.properties on every run, which
       # defaults to building all four ABIs (armeabi-v7a, arm64-v8a, x86, x86_64).
