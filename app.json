@@ -1,0 +1,55 @@
+{
+  "expo": {
+    "name": "FitTrack",
+    "slug": "FitTrack",
+    "scheme": "fittrack",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "FitTrack uses the camera to scan barcodes and photograph meals for calorie estimation.",
+        "NSPhotoLibraryUsageDescription": "FitTrack lets you pick a meal photo from your library to estimate calories.",
+        "NSMotionUsageDescription": "FitTrack uses motion data to count your steps."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "CAMERA",
+        "ACTIVITY_RECOGNITION"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "FitTrack uses the camera to scan barcodes and photograph meals for calorie estimation."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "FitTrack lets you pick a meal photo from your library to estimate calories."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

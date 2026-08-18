@@ -1,0 +1,36 @@
+{
+  "name": "fittrack",
+  "version": "1.0.0",
+  "main": "expo-router/entry",
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "^3.1.1",
+    "expo": "~57.0.14",
+    "expo-camera": "^57.0.3",
+    "expo-constants": "^57.0.12",
+    "expo-file-system": "^57.0.4",
+    "expo-image-picker": "^57.0.11",
+    "expo-linking": "^57.0.6",
+    "expo-router": "^57.0.14",
+    "expo-sensors": "^57.0.2",
+    "expo-status-bar": "~57.0.1",
+    "react": "19.2.3",
+    "react-native": "0.86.2",
+    "react-native-gesture-handler": "^3.2.1",
+    "react-native-reanimated": "^4.5.3",
+    "react-native-safe-area-context": "^5.9.1",
+    "react-native-screens": "^4.27.0",
+    "react-native-svg": "^15.15.5",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.2",
+    "typescript": "~6.0.3"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "private": true
+}
