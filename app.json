@@ -25,9 +25,10 @@
       },
       "predictiveBackGestureEnabled": false,
       "permissions": [
-        "CAMERA",
-        "ACTIVITY_RECOGNITION"
-      ]
+        "android.permission.CAMERA",
+        "android.permission.ACTIVITY_RECOGNITION"
+      ],
+      "package": "com.fittrack.app"
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -38,7 +39,9 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "FitTrack uses the camera to scan barcodes and photograph meals for calorie estimation."
+          "cameraPermission": "FitTrack uses the camera to scan barcodes and photograph meals for calorie estimation.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
         }
       ],
       [
