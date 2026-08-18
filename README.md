@@ -16,6 +16,8 @@ It runs as a real app on your phone via **Expo Go** — no native build required
   portions and calories (via a vision-capable LLM), with editable results and a manual-entry fallback.
 - **Workout builder quiz** — a multiple-choice questionnaire (goal, experience, days/week, equipment,
   focus area, session length) generates a weekly workout split from a built-in exercise database.
+  Tap any exercise in the plan to see step-by-step instructions and the muscles it works.
+- **Multi-language** — English, German and Polish, switchable in Profile.
 
 ## Running on your phone
 
@@ -56,6 +58,15 @@ ABIs (e.g. for an x86 emulator), run the workflow manually and set the **archite
 For a Play Store-ready release build (proper signing/versioning) or an iOS `.ipa`, use
 [EAS Build](https://docs.expo.dev/build/introduction/) instead once you're ready to ship.
 
+## Languages
+
+The app ships in **English, German and Polish**, switchable under **Profile → Language**; the
+choice is saved on-device. English is the fallback for anything untranslated.
+
+To add a language, create `src/i18n/<code>.ts` typed `: Translation` — TypeScript will then list
+every key still missing — and register it in `src/i18n/index.ts`. No screen code changes.
+Translations cover the whole UI plus all exercise names and instructions (232 keys).
+
 ## Photo calorie estimation setup
 
 Photo-based estimation calls a vision-capable LLM directly from the app. Open the **Profile** tab and
@@ -83,6 +94,7 @@ src/
   lib/                calorie math, date helpers, workout plan generator, types
   services/           Open Food Facts client, vision (photo) calorie estimator
   store/              zustand stores, persisted to AsyncStorage on-device
+  i18n/               en/de/pl translations, useT hook
   theme/               colors/spacing/typography
 ```
 

@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '../../src/components/Button';
 import { Card } from '../../src/components/Card';
-import { ACTIVITY_LABELS } from '../../src/lib/calorie';
+import { useT } from '../../src/i18n/useT';
 import { ActivityLevel, Goal, Sex } from '../../src/lib/types';
 import { useProfileStore } from '../../src/store/useProfileStore';
 import { colors, radius, spacing, typography } from '../../src/theme/theme';
@@ -43,6 +43,7 @@ function Segmented<T extends string>({
 }
 
 export default function EditProfile() {
+  const t = useT();
   const profile = useProfileStore((s) => s.profile);
   const setProfile = useProfileStore((s) => s.setProfile);
 
@@ -95,71 +96,71 @@ export default function EditProfile() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.header}>
-            <Text style={typography.h1}>Edit profile</Text>
+            <Text style={typography.h1}>{t.profile.editTitle}</Text>
             <Pressable onPress={() => router.back()}>
-              <Text style={styles.closeText}>Cancel</Text>
+              <Text style={styles.closeText}>{t.common.cancel}</Text>
             </Pressable>
           </View>
 
           <Card style={{ marginTop: spacing(4), marginBottom: spacing(4) }}>
-            <Text style={typography.label}>NAME</Text>
+            <Text style={typography.label}>{t.onboarding.name}</Text>
             <TextInput value={name} onChangeText={setName} style={styles.input} />
 
-            <Text style={[typography.label, { marginTop: spacing(4) }]}>SEX</Text>
+            <Text style={[typography.label, { marginTop: spacing(4) }]}>{t.onboarding.sex}</Text>
             <Segmented
               value={sex}
               onChange={setSex}
               options={[
-                { value: 'male', label: 'Male' },
-                { value: 'female', label: 'Female' },
+                { value: 'male', label: t.onboarding.male },
+                { value: 'female', label: t.onboarding.female },
               ]}
             />
 
             <View style={styles.row3}>
               <View style={styles.col}>
-                <Text style={typography.label}>AGE</Text>
+                <Text style={typography.label}>{t.onboarding.age}</Text>
                 <TextInput value={age} onChangeText={setAge} keyboardType="number-pad" style={styles.input} />
               </View>
               <View style={styles.col}>
-                <Text style={typography.label}>HEIGHT (CM)</Text>
+                <Text style={typography.label}>{t.onboarding.height}</Text>
                 <TextInput value={heightCm} onChangeText={setHeightCm} keyboardType="number-pad" style={styles.input} />
               </View>
               <View style={styles.col}>
-                <Text style={typography.label}>WEIGHT (KG)</Text>
+                <Text style={typography.label}>{t.onboarding.weight}</Text>
                 <TextInput value={weightKg} onChangeText={setWeightKg} keyboardType="decimal-pad" style={styles.input} />
               </View>
             </View>
           </Card>
 
           <Card style={{ marginBottom: spacing(4) }}>
-            <Text style={typography.label}>ACTIVITY LEVEL</Text>
+            <Text style={typography.label}>{t.onboarding.activityLevel}</Text>
             <View style={{ marginTop: spacing(2) }}>
-              {(Object.keys(ACTIVITY_LABELS) as ActivityLevel[]).map((level) => (
+              {(Object.keys(t.activity) as ActivityLevel[]).map((level) => (
                 <Text
                   key={level}
                   onPress={() => setActivityLevel(level)}
                   style={[styles.listOption, activityLevel === level && styles.listOptionActive]}
                 >
-                  {ACTIVITY_LABELS[level]}
+                  {t.activity[level]}
                 </Text>
               ))}
             </View>
           </Card>
 
           <Card style={{ marginBottom: spacing(4) }}>
-            <Text style={typography.label}>GOAL</Text>
+            <Text style={typography.label}>{t.onboarding.goal}</Text>
             <Segmented
               value={goal}
               onChange={setGoal}
               options={[
-                { value: 'lose', label: 'Lose weight' },
-                { value: 'maintain', label: 'Maintain' },
-                { value: 'gain', label: 'Gain weight' },
+                { value: 'lose', label: t.goals.lose },
+                { value: 'maintain', label: t.goals.maintain },
+                { value: 'gain', label: t.goals.gain },
               ]}
             />
             {goal !== 'maintain' ? (
               <>
-                <Text style={[typography.label, { marginTop: spacing(4) }]}>TARGET RATE (KG / WEEK)</Text>
+                <Text style={[typography.label, { marginTop: spacing(4) }]}>{t.onboarding.targetRate}</Text>
                 <TextInput
                   value={weeklyRateKg}
                   onChangeText={setWeeklyRateKg}
@@ -171,7 +172,7 @@ export default function EditProfile() {
             ) : null}
           </Card>
 
-          <Button title="Save changes" onPress={save} />
+          <Button title={t.common.saveChanges} onPress={save} />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

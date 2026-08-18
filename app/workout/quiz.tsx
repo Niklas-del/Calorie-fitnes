@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '../../src/components/Button';
 import { Card } from '../../src/components/Card';
+import { useT } from '../../src/i18n/useT';
 import { generateWorkoutPlan } from '../../src/lib/workoutGenerator';
 import { Equipment, ExperienceLevel, FocusArea, WorkoutQuizAnswers } from '../../src/lib/types';
 import { useWorkoutStore } from '../../src/store/useWorkoutStore';
@@ -35,6 +36,7 @@ function ChoiceGrid<T extends string>({
 }
 
 export default function WorkoutQuiz() {
+  const t = useT();
   const setPlan = useWorkoutStore((s) => s.setPlan);
 
   const [goal, setGoal] = useState<WorkoutQuizAnswers['goal']>('get_fit');
@@ -56,44 +58,44 @@ export default function WorkoutQuiz() {
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.header}>
-          <Text style={typography.h1}>Build your plan</Text>
+          <Text style={typography.h1}>{t.quiz.title}</Text>
           <Pressable onPress={() => router.back()}>
-            <Text style={styles.closeText}>Close</Text>
+            <Text style={styles.closeText}>{t.common.close}</Text>
           </Pressable>
         </View>
         <Text style={[typography.muted, { marginBottom: spacing(5) }]}>
-          Answer a few questions and we'll generate a weekly workout split for you.
+          {t.quiz.subtitle}
         </Text>
 
         <Card style={{ marginBottom: spacing(4) }}>
-          <Text style={typography.h2}>What's your main goal?</Text>
+          <Text style={typography.h2}>{t.quiz.goalQ}</Text>
           <ChoiceGrid
             value={goal}
             onChange={setGoal}
             options={[
-              { value: 'lose_fat', label: 'Lose fat' },
-              { value: 'build_muscle', label: 'Build muscle' },
-              { value: 'build_strength', label: 'Get stronger' },
-              { value: 'get_fit', label: 'General fitness' },
+              { value: 'lose_fat', label: t.quiz.loseFat },
+              { value: 'build_muscle', label: t.quiz.buildMuscle },
+              { value: 'build_strength', label: t.quiz.getStronger },
+              { value: 'get_fit', label: t.quiz.generalFitness },
             ]}
           />
         </Card>
 
         <Card style={{ marginBottom: spacing(4) }}>
-          <Text style={typography.h2}>Experience level</Text>
+          <Text style={typography.h2}>{t.quiz.experienceQ}</Text>
           <ChoiceGrid
             value={experience}
             onChange={setExperience}
             options={[
-              { value: 'beginner', label: 'Beginner' },
-              { value: 'intermediate', label: 'Intermediate' },
-              { value: 'advanced', label: 'Advanced' },
+              { value: 'beginner', label: t.quiz.beginner },
+              { value: 'intermediate', label: t.quiz.intermediate },
+              { value: 'advanced', label: t.quiz.advanced },
             ]}
           />
         </Card>
 
         <Card style={{ marginBottom: spacing(4) }}>
-          <Text style={typography.h2}>Days per week</Text>
+          <Text style={typography.h2}>{t.quiz.daysQ}</Text>
           <ChoiceGrid
             value={String(daysPerWeek)}
             onChange={(v) => setDaysPerWeek(Number(v))}
@@ -102,43 +104,43 @@ export default function WorkoutQuiz() {
         </Card>
 
         <Card style={{ marginBottom: spacing(4) }}>
-          <Text style={typography.h2}>Available equipment</Text>
+          <Text style={typography.h2}>{t.quiz.equipmentQ}</Text>
           <ChoiceGrid
             value={equipment}
             onChange={setEquipment}
             options={[
-              { value: 'none', label: 'Bodyweight only' },
-              { value: 'dumbbells', label: 'Dumbbells' },
-              { value: 'full_gym', label: 'Full gym' },
+              { value: 'none', label: t.quiz.bodyweightOnly },
+              { value: 'dumbbells', label: t.quiz.dumbbells },
+              { value: 'full_gym', label: t.quiz.fullGym },
             ]}
           />
         </Card>
 
         <Card style={{ marginBottom: spacing(4) }}>
-          <Text style={typography.h2}>Primary focus</Text>
+          <Text style={typography.h2}>{t.quiz.focusQ}</Text>
           <ChoiceGrid
             value={focus}
             onChange={setFocus}
             options={[
-              { value: 'full_body', label: 'Full body' },
-              { value: 'upper_body', label: 'Upper body' },
-              { value: 'lower_body', label: 'Lower body' },
-              { value: 'core', label: 'Core' },
-              { value: 'cardio', label: 'Cardio' },
+              { value: 'full_body', label: t.quiz.fullBody },
+              { value: 'upper_body', label: t.quiz.upperBody },
+              { value: 'lower_body', label: t.quiz.lowerBody },
+              { value: 'core', label: t.quiz.core },
+              { value: 'cardio', label: t.quiz.cardio },
             ]}
           />
         </Card>
 
         <Card style={{ marginBottom: spacing(6) }}>
-          <Text style={typography.h2}>Session length</Text>
+          <Text style={typography.h2}>{t.quiz.lengthQ}</Text>
           <ChoiceGrid
             value={String(sessionMinutes)}
             onChange={(v) => setSessionMinutes(Number(v))}
-            options={[15, 30, 45, 60].map((n) => ({ value: String(n), label: `${n} min` }))}
+            options={[15, 30, 45, 60].map((n) => ({ value: String(n), label: t.quiz.minutes(n) }))}
           />
         </Card>
 
-        <Button title="Generate my plan" onPress={generate} />
+        <Button title={t.quiz.generate} onPress={generate} />
       </ScrollView>
     </SafeAreaView>
   );

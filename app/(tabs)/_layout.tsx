@@ -1,4 +1,5 @@
 import { Tabs } from 'expo-router';
+import { useT } from '../../src/i18n/useT';
 import { Text } from 'react-native';
 import { colors } from '../../src/theme/theme';
 
@@ -7,6 +8,7 @@ function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
 }
 
 export default function TabsLayout() {
+  const t = useT();
   return (
     <Tabs
       screenOptions={{
@@ -22,35 +24,35 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Today',
+          title: t.tabs.today,
           tabBarIcon: ({ focused }) => <TabIcon emoji="🏠" focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="log"
         options={{
-          title: 'Diary',
+          title: t.tabs.diary,
           tabBarIcon: ({ focused }) => <TabIcon emoji="🍽️" focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="steps"
         options={{
-          title: 'Steps',
+          title: t.tabs.steps,
           tabBarIcon: ({ focused }) => <TabIcon emoji="👟" focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="workout"
         options={{
-          title: 'Workout',
+          title: t.tabs.workout,
           tabBarIcon: ({ focused }) => <TabIcon emoji="💪" focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: t.tabs.profile,
           tabBarIcon: ({ focused }) => <TabIcon emoji="⚙️" focused={focused} />,
         }}
       />

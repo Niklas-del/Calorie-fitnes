@@ -8,14 +8,6 @@ const ACTIVITY_MULTIPLIERS: Record<ActivityLevel, number> = {
   very_active: 1.9,
 };
 
-export const ACTIVITY_LABELS: Record<ActivityLevel, string> = {
-  sedentary: 'Sedentary (little to no exercise)',
-  light: 'Light (exercise 1-3 days/week)',
-  moderate: 'Moderate (exercise 3-5 days/week)',
-  active: 'Active (exercise 6-7 days/week)',
-  very_active: 'Very active (hard exercise & physical job)',
-};
-
 /** One kg of body fat is ~7700 kcal. */
 const KCAL_PER_KG = 7700;
 
