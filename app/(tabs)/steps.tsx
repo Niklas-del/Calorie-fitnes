@@ -11,11 +11,11 @@ import { colors, radius, spacing, typography } from '../../src/theme/theme';
 
 export default function Steps() {
   const today = todayKey();
-  const stepsToday = useStepStore((s) => s.stepsForDate(today));
   const stepGoal = useStepStore((s) => s.stepGoal);
   const setStepsForDate = useStepStore((s) => s.setStepsForDate);
   const setStepGoal = useStepStore((s) => s.setStepGoal);
   const history = useStepStore((s) => s.history);
+  const stepsToday = history[today] ?? 0;
 
   const [available, setAvailable] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);

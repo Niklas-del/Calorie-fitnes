@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '../../src/components/Button';
@@ -6,6 +7,7 @@ import { Card } from '../../src/components/Card';
 import { MacroBar } from '../../src/components/MacroBar';
 import { ProgressRing } from '../../src/components/ProgressRing';
 import { todayKey } from '../../src/lib/date';
+import { entriesOnDate, sumTotals } from '../../src/lib/nutrition';
 import { useFoodLogStore } from '../../src/store/useFoodLogStore';
 import { useProfileStore } from '../../src/store/useProfileStore';
 import { useStepStore } from '../../src/store/useStepStore';
@@ -16,8 +18,11 @@ export default function Dashboard() {
   const getTargets = useProfileStore((s) => s.getTargets);
   const targets = getTargets();
   const today = todayKey();
-  const totals = useFoodLogStore((s) => s.totalsForDate(today));
-  const steps = useStepStore((s) => s.stepsForDate(today));
+  // Select raw state and derive here — a selector that builds a new object each
+  // call makes zustand re-render forever (see the note in useFoodLogStore).
+  const entries = useFoodLogStore((s) => s.entries);
+  const totals = useMemo(() => sumTotals(entriesOnDate(entries, today)), [entries, today]);
+  const steps = useStepStore((s) => s.history[today] ?? 0);
   const stepGoal = useStepStore((s) => s.stepGoal);
 
   const target = targets?.dailyTarget ?? 2000;
