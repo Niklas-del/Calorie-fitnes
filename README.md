@@ -38,13 +38,20 @@ A GitHub Actions workflow (`.github/workflows/build-apk.yml`) builds a real inst
 `.apk` on every push to `main`, and can also be run on demand:
 
 1. Go to the repo's **Actions** tab → **Build Android APK** → **Run workflow**.
-2. Once it finishes (~10-15 min), open the run and download the **fittrack-apk** artifact.
+2. Wait for it to finish, then open the run and download the **fittrack-apk** artifact.
 3. Unzip it, copy the `.apk` to your Android phone, and open it to install (you'll need to allow
    "install from unknown sources" the first time — this build isn't distributed through the Play
    Store, just self-signed for direct install/testing).
 
 This build runs entirely on GitHub's runners (which have the Android SDK preinstalled) via
 `expo prebuild` + a native Gradle build — no Expo account or EAS is required.
+
+**How long it takes:** expect roughly 12-20 minutes. Most of that is one Gradle step compiling the
+React Native, Hermes and Reanimated native code from source; a cold run with no Gradle cache is
+slow by nature, and reruns are faster once the cache is warm. By default the workflow builds only
+the `arm64-v8a` ABI, which every 64-bit Android phone uses — building all four ABIs (the Expo
+default) roughly quadruples that native compile step for no benefit on a real phone. To build other
+ABIs (e.g. for an x86 emulator), run the workflow manually and set the **architectures** input.
 
 For a Play Store-ready release build (proper signing/versioning) or an iOS `.ipa`, use
 [EAS Build](https://docs.expo.dev/build/introduction/) instead once you're ready to ship.
