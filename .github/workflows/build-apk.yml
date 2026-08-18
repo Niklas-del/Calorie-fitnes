@@ -21,6 +21,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # The first CI run deadlocked after a Gradle worker died: the failing task
+    # was reported at 16:34:56 and then the build produced no further output at
+    # all, sitting idle until it was cancelled 29 minutes later (the runner then
+    # had to terminate three orphaned java processes). Fail fast instead of
+    # burning a runner when that happens again.
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v4
